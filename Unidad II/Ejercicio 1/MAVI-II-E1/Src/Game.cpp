@@ -46,11 +46,11 @@ void Game::DrawGame()
 	groundShape.setPosition(0, 95);
 	wnd->draw(groundShape);
 
-	//// Dibujar el cuerpo que cae
-	//sf::RectangleShape controlShape(sf::Vector2f(5, 5));
-	//controlShape.setFillColor(sf::Color::Magenta);
-	//controlShape.setPosition(controlBody->GetPosition().x - 5, controlBody->GetPosition().y - 5);
-	//wnd->draw(controlShape);
+	// Dibujar el cuerpo que cae, encima del cuerpo de control
+	sf::RectangleShape controlShape(sf::Vector2f(5, 5));
+	controlShape.setFillColor(sf::Color::Magenta);
+	controlShape.setPosition(controlBody->GetPosition().x - 2.5f, controlBody->GetPosition().y - 2.5f);
+	wnd->draw(controlShape);
 }
 
 // Procesamiento de eventos de entrada
@@ -73,19 +73,6 @@ void Game::DoEvents()
 			break;
 		}
 	}
-
-	// Controlar el movimiento del cuerpo de control con el teclado
-	// Segun la numeracion usada, cuando mas cerca de cero mas 
-	// lento es el desplazamiento sobre ese eje
-	controlBody->SetAwake(true);
-	if (Keyboard::isKeyPressed(Keyboard::Left))
-		controlBody->SetLinearVelocity(b2Vec2(-30.0f, 0.0f));
-	if (Keyboard::isKeyPressed(Keyboard::Right))
-		controlBody->SetLinearVelocity(b2Vec2(30.0f, 0.0f));
-	if (Keyboard::isKeyPressed(Keyboard::Down))
-		controlBody->SetLinearVelocity(b2Vec2(0.0f, 30.0f));
-	if (Keyboard::isKeyPressed(Keyboard::Up))
-		controlBody->SetLinearVelocity(b2Vec2(0.0f, -30.0f));
 }
 
 // Comprobación de colisiones (a implementar más adelante)
