@@ -26,6 +26,7 @@ private:
 	b2Body* controlBody;
 
 public:
+	void Shoot();
 
 	// Constructores, destructores e inicializadores
 	Game(int ancho, int alto,std::string titulo);

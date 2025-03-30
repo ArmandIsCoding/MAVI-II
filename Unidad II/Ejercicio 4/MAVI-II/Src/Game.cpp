@@ -43,7 +43,7 @@ void Game::DrawGame()
     // Dibujar el suelo
     sf::RectangleShape groundShape(sf::Vector2f(500, 5));
     groundShape.setFillColor(sf::Color::Red);
-    groundShape.setPosition(0, 95);
+    groundShape.setPosition(0, 75);
     wnd->draw(groundShape);
 
     // Dibujar las paredes
@@ -58,7 +58,7 @@ void Game::DrawGame()
     wnd->draw(rightWallShape);
 
     // Dibujar el cuerpo de control (círculo)
-    sf::CircleShape controlShape(5);
+    sf::RectangleShape controlShape(sf::Vector2f(10, 10));;
     controlShape.setFillColor(sf::Color::Magenta);
     controlShape.setPosition(controlBody->GetPosition().x - 5, controlBody->GetPosition().y - 5);
     wnd->draw(controlShape);
@@ -75,13 +75,6 @@ void Game::DoEvents()
         case Event::Closed:
             wnd->close(); // Cerrar la ventana si se presiona el botón de cerrar
             break;
-        case Event::MouseButtonPressed:
-            // Crear un cuerpo dinámico triangular en la posición del ratón
-            b2Body* body = Box2DHelper::CreateTriangularDynamicBody(phyWorld, b2Vec2(0.0f, 0.0f), 10.0f, 1.0f, 4.0f, 0.1f);
-            // Transformar las coordenadas según la vista activa
-            Vector2f pos = wnd->mapPixelToCoords(Vector2i(evt.mouseButton.x, evt.mouseButton.y));
-            body->SetTransform(b2Vec2(pos.x, pos.y), 0.0f);
-            break;
         }
     }
 
@@ -95,8 +88,8 @@ void Game::DoEvents()
         controlBody->SetLinearVelocity(b2Vec2(30.0f, 0.0f));
     if (Keyboard::isKeyPressed(Keyboard::Down))
         controlBody->SetLinearVelocity(b2Vec2(0.0f, 30.0f));
-    if (Keyboard::isKeyPressed(Keyboard::Up))
-        controlBody->SetLinearVelocity(b2Vec2(0.0f, -30.0f));
+    //if (Keyboard::isKeyPressed(Keyboard::Up))
+    //    controlBody->SetLinearVelocity(b2Vec2(0.0f, -30.0f));
 }
 
 // Comprobación de colisiones (a implementar más adelante)
@@ -126,9 +119,22 @@ void Game::InitPhysics()
     debugRender->SetFlags(UINT_MAX);
     phyWorld->SetDebugDraw(debugRender);
 
-    // Crear el suelo y las paredes estáticas del mundo físico
+    // Crear el suelo y las paredes estáticas
     b2Body* groundBody = Box2DHelper::CreateRectangularStaticBody(phyWorld, 100, 10);
-    groundBody->SetTransform(b2Vec2(50.0f, 100.0f), 0.0f);
+    groundBody->SetTransform(b2Vec2(50.0f, 75.0f), 0.0f);
+
+    // Definir la forma del suelo (rectangulo)
+    b2PolygonShape groundShape;
+    groundShape.SetAsBox(50.0f, 5.0f);
+
+    // Configurar la fixture con coeficiente de rozamiento
+    b2FixtureDef groundFixture;
+    groundFixture.shape = &groundShape;
+    groundFixture.friction = 1.0f;  // Aumentar la fricción
+    groundFixture.restitution = 0.1f;  // Rebote muy bajo
+
+    // Agregar la fixture al suelo
+    groundBody->CreateFixture(&groundFixture);
 
     b2Body* leftWallBody = Box2DHelper::CreateRectangularStaticBody(phyWorld, 10, 100);
     leftWallBody->SetTransform(b2Vec2(0.0f, 50.0f), 0.0f);
@@ -137,7 +143,7 @@ void Game::InitPhysics()
     rightWallBody->SetTransform(b2Vec2(100.0f, 50.0f), 0.0f);
 
     // Crear un círculo que se controlará con el teclado
-    controlBody = Box2DHelper::CreateCircularDynamicBody(phyWorld, 5, 1.0f, 0.5, 0.1f);
+    controlBody = Box2DHelper::CreateRectangularDynamicBody(phyWorld, 5, 1.0f, 10.5, 0.9f, 0.1f);
     controlBody->SetTransform(b2Vec2(50.0f, 50.0f), 0.0f);
 }
 
