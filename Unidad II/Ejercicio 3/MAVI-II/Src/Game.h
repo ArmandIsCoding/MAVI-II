@@ -3,6 +3,7 @@
 #include <SFML/System.hpp>
 #include "SFMLRenderer.h"
 #include <list>
+#include <vector> //originalmente tenia solo 2 random bodies, pero queria un vector para agregar MUCHOS y tener mucha accion de colisiones
 
 using namespace sf;
 class Game
@@ -25,12 +26,13 @@ private:
 	// Cuerpo de box2d
 	b2Body* controlBody;
 
+	std::vector<b2Body*> randomBodies;  // Vector de random bodies (obstáculos)
+	int numRandomBodies = 30;  // Cantidad
+
 public:
 
 	// Constructores, destructores e inicializadores
 	Game(int ancho, int alto,std::string titulo);
-	void CheckCollitions();
-	void CreateEnemy(int x, int y);
 	~Game(void);
 	void InitPhysics();
 
