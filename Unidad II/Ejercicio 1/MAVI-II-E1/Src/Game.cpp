@@ -46,7 +46,7 @@ void Game::DrawGame()
 	groundShape.setPosition(0, 95);
 	wnd->draw(groundShape);
 
-	// Dibujar el cuerpo que cae, encima del cuerpo de control
+	// Dibujar el cuerpo que cae, encima del cuerpo de control. Que lo siga.
 	sf::RectangleShape controlShape(sf::Vector2f(5, 5));
 	controlShape.setFillColor(sf::Color::Magenta);
 	controlShape.setPosition(controlBody->GetPosition().x - 2.5f, controlBody->GetPosition().y - 2.5f);
@@ -63,13 +63,6 @@ void Game::DoEvents()
 		{
 		case Event::Closed:
 			wnd->close(); // Cerrar la ventana si se presiona el botón de cerrar
-			break;
-		case Event::MouseButtonPressed:
-			// Crear un cuerpo dinámico triangular en la posición del ratón
-			b2Body* body = Box2DHelper::CreateTriangularDynamicBody(phyWorld, b2Vec2(0.0f, 0.0f), 10.0f, 1.0f, 4.0f, 0.1f);
-			// Transformar las coordenadas según la vista activa
-			Vector2f pos = wnd->mapPixelToCoords(Vector2i(evt.mouseButton.x, evt.mouseButton.y));
-			body->SetTransform(b2Vec2(pos.x, pos.y), 0.0f);
 			break;
 		}
 	}

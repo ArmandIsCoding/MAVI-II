@@ -29,8 +29,6 @@ public:
 
 	// Constructores, destructores e inicializadores
 	Game(int ancho, int alto,std::string titulo);
-	void CheckCollitions();
-	void CreateEnemy(int x, int y);
 	~Game(void);
 	void InitPhysics();
 
