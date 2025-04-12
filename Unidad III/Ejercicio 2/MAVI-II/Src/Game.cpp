@@ -6,6 +6,8 @@
 Game::Game(int ancho, int alto, std::string titulo)
 {
 	// Inicialización de la ventana y configuración de propiedades
+	this->alto = alto;
+	this->ancho = ancho;
 	wnd = new RenderWindow(VideoMode(ancho, alto), titulo);
 	wnd->setVisible(true);
 	fps = 60;
@@ -46,80 +48,62 @@ void Game::DrawGame()
 	groundShape.setPosition(0, 95);
 	wnd->draw(groundShape);
 
-	// Dibujar las formas renderizables encima de los bodys fisicos.
-	// A:
-	sf::RectangleShape controlShapeA(sf::Vector2f(5, 5));
-	controlShapeA.setFillColor(sf::Color::Magenta);
-	controlShapeA.setPosition(controlBodyA->GetPosition().x - 2.5f, controlBodyA->GetPosition().y - 2.5f);
-	wnd->draw(controlShapeA);
+	//// Dibujar las formas renderizables encima de los bodys fisicos.
+	//// A:
+	//sf::RectangleShape controlShapeA(sf::Vector2f(5, 5));
+	//controlShapeA.setFillColor(sf::Color::Magenta);
+	//controlShapeA.setPosition(controlBodyA->GetPosition().x - 2.5f, controlBodyA->GetPosition().y - 2.5f);
+	//wnd->draw(controlShapeA);
 
-	//B:
-	sf::RectangleShape controlShapeB(sf::Vector2f(5, 5));
-	controlShapeB.setFillColor(sf::Color::Red);
-	controlShapeB.setPosition(controlBodyB->GetPosition().x - 2.5f, controlBodyB->GetPosition().y - 2.5f);
-	wnd->draw(controlShapeB);
+	////B:
+	//sf::RectangleShape controlShapeB(sf::Vector2f(5, 5));
+	//controlShapeB.setFillColor(sf::Color::Red);
+	//controlShapeB.setPosition(controlBodyB->GetPosition().x - 2.5f, controlBodyB->GetPosition().y - 2.5f);
+	//wnd->draw(controlShapeB);
 
 
-	// Dibujar el avatar
-	m_avatar->Dibujar(*wnd);
-	m_avatar->Actualizar(); // Actualizar la posición del avatar
+	// Dibujar el avatar (pelota)
+	pelotaA->Dibujar(*wnd);
+	pelotaA->Actualizar();
+
+	pelotaB->Dibujar(*wnd);
+	pelotaB->Actualizar();
 }
 
 // Procesamiento de eventos de entrada
 void Game::DoEvents()
 {
-	Event evt;
+	float SCALE = 1.0f; // Escala de Box2D a SFML, aparentemente 1.0f es la correcta es decir no hacía falta adaptarla.
+	sf::Event evt;
 	while (wnd->pollEvent(evt))
 	{
 		switch (evt.type)
 		{
-		case Event::Closed:
-			wnd->close(); // Cerrar la ventana si se presiona el botón de cerrar
+		case sf::Event::Closed:
+			wnd->close();
 			break;
 
-		case Event::KeyPressed:
-			// Detectar las flechas del teclado y mover controlBodyA
-			if (evt.key.code == Keyboard::Key::Up)
-			{
-				controlBodyA->SetLinearVelocity(b2Vec2(controlBodyA->GetLinearVelocity().x, -25.0f));
-			}
-			else if (evt.key.code == Keyboard::Key::Down)
-			{
-				controlBodyA->SetLinearVelocity(b2Vec2(controlBodyA->GetLinearVelocity().x, 25.0f));
-			}
-			else if (evt.key.code == Keyboard::Key::Left)
-			{
-				controlBodyA->SetLinearVelocity(b2Vec2(-25.0f, controlBodyA->GetLinearVelocity().y));
-			}
-			else if (evt.key.code == Keyboard::Key::Right)
-			{
-				controlBodyA->SetLinearVelocity(b2Vec2(25.0f, controlBodyA->GetLinearVelocity().y));
-			}
-			break;
+		// Al hacer click en cualquier parte de la ventana se mueve una de las pelotas a esa posicion
+		case sf::Event::MouseButtonPressed:
+		{
+			// Posición del mouse en pixeles (ventana)
+			sf::Vector2i pixelPos = sf::Mouse::getPosition(*wnd);
 
-		case Event::KeyReleased:
-			// Detener el movimiento cuando se suelta la tecla
-			if (evt.key.code == Keyboard::Key::Up || evt.key.code == Keyboard::Key::Down)
-			{
-				controlBodyA->SetLinearVelocity(b2Vec2(controlBodyA->GetLinearVelocity().x, 0.0f));
-			}
-			else if (evt.key.code == Keyboard::Key::Left || evt.key.code == Keyboard::Key::Right)
-			{
-				controlBodyA->SetLinearVelocity(b2Vec2(0.0f, controlBodyA->GetLinearVelocity().y));
-			}
+			// Convertir a coordenadas del mundo
+			sf::Vector2f worldPos = wnd->mapPixelToCoords(pixelPos);
+
+			// Convertir a metros (si usás escala de Box2D)
+			float x = worldPos.x / SCALE;
+			float y = worldPos.y / SCALE;
+
+			// Usar SetTransform para mover el cuerpo sin rotación (0 radianes)
+			controlBodyA->SetTransform(b2Vec2(x, y), controlBodyA->GetAngle());
+
 			break;
 		}
-	}
-	{
-		Event evt;
-		while (wnd->pollEvent(evt))
-		{
-			switch (evt.type)
-			{
-			case Event::Closed:
-				wnd->close(); // Cerrar la ventana si se presiona el botón de cerrar
-				break;
-			}
+
+		default:
+			break;
 		}
 	}
 }
@@ -186,7 +170,8 @@ void Game::InitPhysics()
 	// Crear un avatar para el cuerpo controlBodyA
 	t.loadFromFile("Pelota.png");
 	sf::Sprite* sprite = new sf::Sprite(t);
-	m_avatar = new Avatar(controlBodyA, sprite);
+	pelotaA = new Avatar(controlBodyA, sprite);
+	pelotaB = new Avatar(controlBodyB, sprite);
 }
 
 // Destructor de la clase

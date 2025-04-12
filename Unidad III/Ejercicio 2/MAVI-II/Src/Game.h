@@ -27,10 +27,11 @@ private:
 	b2Body* controlBodyA;
 	b2Body* controlBodyB;
 
-	// Joint
-	//b2DistanceJointDef jointDef;
+	// Resorte
+	b2DistanceJointDef jointDef;
 
-	Avatar* m_avatar;
+	Avatar* pelotaA;
+	Avatar* pelotaB;
 	sf::Texture t;
 
 public:
@@ -38,7 +39,6 @@ public:
 	// Constructores, destructores e inicializadores
 	Game(int ancho, int alto,std::string titulo);
 	void CheckCollitions();
-	void CreateEnemy(int x, int y);
 	~Game(void);
 	void InitPhysics();
 
