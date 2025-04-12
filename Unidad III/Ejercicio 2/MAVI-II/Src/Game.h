@@ -23,7 +23,9 @@ private:
 	float frameTime;
 	int fps;
 
+	// Cuerpos de box2d, los voy a unir con un joint.
 	b2Body* controlBodyA;
+	b2Body* controlBodyB;
 
 	// Joint
 	//b2DistanceJointDef jointDef;
@@ -36,6 +38,7 @@ public:
 	// Constructores, destructores e inicializadores
 	Game(int ancho, int alto,std::string titulo);
 	void CheckCollitions();
+	void CreateEnemy(int x, int y);
 	~Game(void);
 	void InitPhysics();
 
