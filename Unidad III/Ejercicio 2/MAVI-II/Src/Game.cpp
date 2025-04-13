@@ -34,9 +34,28 @@ void Game::Loop()
 // Actualización de la simulación física
 void Game::UpdatePhysics()
 {
-	phyWorld->Step(frameTime, 8, 8); // Simular el mundo físico
-	phyWorld->ClearForces(); // Limpiar las fuerzas aplicadas a los cuerpos
-	phyWorld->DebugDraw(); // Dibujar el mundo físico para depuración
+	phyWorld->Step(frameTime, 8, 8);
+	phyWorld->ClearForces();
+	phyWorld->DebugDraw();
+
+	// Actualizar la posición de los sprites según la posición de los cuerpos físicos
+	// dragBody se declara asi: b2Body* dragBody
+	// por lo que al igualarlo en el metodo de eventos, se crea un puntero al cuerpo en cuestion
+	// y no una copia de todo el cuerpo.
+	// Por eso podemos ir switcheando sobre cual estamos moviendo cuando clickeamos.
+	if (dragging && dragBody)
+	{
+		Vector2f mousePos = wnd->mapPixelToCoords(Mouse::getPosition(*wnd));
+		b2Vec2 target(mousePos.x, mousePos.y);
+		b2Vec2 current = dragBody->GetPosition();
+		b2Vec2 velocity = target - current;
+		dragBody->SetLinearVelocity(b2Vec2(velocity.x * 10.0f, velocity.y * 10.0f));
+	}
+	else if (dragBody)
+	{
+		dragBody->SetLinearVelocity(b2Vec2(0, 0));
+		dragBody = nullptr;
+	}
 }
 
 // Dibujo de los elementos del juego
@@ -70,42 +89,58 @@ void Game::DrawGame()
 	pelotaB->Actualizar();
 }
 
-// Procesamiento de eventos de entrada
+// Eventos
 void Game::DoEvents()
 {
-	float SCALE = 1.0f; // Escala de Box2D a SFML, aparentemente 1.0f es la correcta es decir no hacía falta adaptarla.
-	sf::Event evt;
+	Event evt;
 	while (wnd->pollEvent(evt))
 	{
 		switch (evt.type)
 		{
-		case sf::Event::Closed:
+		case Event::Closed:
 			wnd->close();
 			break;
 
-		// Al hacer click en cualquier parte de la ventana se mueve una de las pelotas a esa posicion
-		case sf::Event::MouseButtonPressed:
-		{
-			// Posición del mouse en pixeles (ventana)
-			sf::Vector2i pixelPos = sf::Mouse::getPosition(*wnd);
+		case Event::MouseButtonPressed:
+			if (evt.mouseButton.button == Mouse::Left)
+			{
+				Vector2f mousePos = wnd->mapPixelToCoords(Mouse::getPosition(*wnd));
+				b2Vec2 mouseWorld(mousePos.x, mousePos.y);
 
-			// Convertir a coordenadas del mundo
-			sf::Vector2f worldPos = wnd->mapPixelToCoords(pixelPos);
-
-			// Convertir a metros (si usás escala de Box2D)
-			float x = worldPos.x / SCALE;
-			float y = worldPos.y / SCALE;
-
-			// Usar SetTransform para mover el cuerpo sin rotación (0 radianes)
-			controlBodyA->SetTransform(b2Vec2(x, y), controlBodyA->GetAngle());
-
+				if (MouseOverB2Body(controlBodyA, mouseWorld))
+				{
+					dragBody = controlBodyA;
+					dragging = true;
+				}
+				if (MouseOverB2Body(controlBodyB, mouseWorld))
+				{
+					dragBody = controlBodyB;
+					dragging = true;
+				}
+			}
 			break;
-		}
 
-		default:
+		case Event::MouseButtonReleased:
+			if (evt.mouseButton.button == Mouse::Left)
+			{
+				dragging = false;
+			}
 			break;
 		}
 	}
+}
+
+bool Game::MouseOverB2Body(b2Body* cuerpo, b2Vec2 mousePos)
+{
+	for (b2Fixture* f = cuerpo->GetFixtureList(); f; f = f->GetNext())
+	{
+		// TestPoint(mousePos) te dice si una coordenada del mundo (como la del mouse)
+		// está dentro del área de esa shape (o sea, dentro de ese fixture).
+		// Source: https://box2d.org/doc_version_2_4/classb2_fixture.html#aa56d3ca04a5d0478c6477876cd480cc6
+		if (f->TestPoint(mousePos))
+			return true;
+	}
+	return false;
 }
 
 // Comprobación de colisiones (a implementar más adelante)

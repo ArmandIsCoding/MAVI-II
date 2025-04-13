@@ -34,6 +34,11 @@ private:
 	Avatar* pelotaB;
 	sf::Texture t;
 
+	// Manejo del drag and drop
+	bool MouseOverB2Body(b2Body* cuerpo, b2Vec2 mousePos);
+	b2Body* dragBody = nullptr;
+	bool dragging = false;
+
 public:
 
 	// Constructores, destructores e inicializadores
