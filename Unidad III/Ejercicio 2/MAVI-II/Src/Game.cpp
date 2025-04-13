@@ -80,7 +80,6 @@ void Game::DrawGame()
 	//controlShapeB.setPosition(controlBodyB->GetPosition().x - 2.5f, controlBodyB->GetPosition().y - 2.5f);
 	//wnd->draw(controlShapeB);
 
-
 	// Dibujar el avatar (pelota)
 	pelotaA->Dibujar(*wnd);
 	pelotaA->Actualizar();
