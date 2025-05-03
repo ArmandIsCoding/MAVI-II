@@ -5,6 +5,9 @@
 #include "Avatar.h"
 #include "Ragdoll.h"
 #include <list>
+#include "Obstacle.h"
+#include "DynamicObstacle.h"
+#include "StaticObstacle.h"
 
 using namespace sf;
 class Game
@@ -15,6 +18,9 @@ private:
 	int W;
 	RenderWindow *wnd;
 	Color clearColor;
+
+	// Obstáculos
+	std::vector<Obstacle*> obstacles;
 
 	// Objetos de box2d
 	b2World *phyWorld;

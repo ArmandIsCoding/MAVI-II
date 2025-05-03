@@ -1,6 +1,8 @@
 #include "Game.h"
 #include "Box2DHelper.h"
-#include <iostream>
+#include "Obstacle.h"
+#include "DynamicObstacle.h"
+#include "StaticObstacle.h"
 
 // Constructor de la clase Game
 Game::Game(int ancho, int alto, std::string titulo)
@@ -34,9 +36,15 @@ void Game::Loop()
 // Actualización de la simulación física
 void Game::UpdatePhysics()
 {
+	// Actualizar el mundo físico
 	phyWorld->Step(frameTime, 8, 8);
 	phyWorld->ClearForces();
 	phyWorld->DebugDraw();
+
+	for (Obstacle* obs : obstacles) {
+		obs->Update();
+		obs->Draw(*wnd);
+	}
 }
 
 // Dibujo de los elementos del juego
@@ -48,11 +56,29 @@ void Game::DrawGame()
 	groundShape.setPosition(0, 95);
 	wnd->draw(groundShape);
 
+	// Dibujar el techo
+	sf::RectangleShape ceilingShape(sf::Vector2f(500, 5));
+	ceilingShape.setFillColor(sf::Color::Red);
+	ceilingShape.setPosition(0, 0);
+	wnd->draw(ceilingShape);
+
+	// Pared izq.
+	sf::RectangleShape leftWall(sf::Vector2f(5, 100));
+	leftWall.setFillColor(sf::Color::Red);
+	leftWall.setPosition(0, 0);
+	wnd->draw(leftWall);
+
+	// Pared der.
+	sf::RectangleShape rightWall(sf::Vector2f(5, 100));
+	rightWall.setFillColor(sf::Color::Red);
+	rightWall.setPosition(95, 0);
+	wnd->draw(rightWall);
+
 	// Dibujar todos los ragdolls
-	//for (Ragdoll& rag : ragdolls)
-	//{
-	//	rag.Draw(*wnd);
-	//}
+	for (Ragdoll& rag : ragdolls)
+	{
+		rag.Draw(*wnd);
+	}
 }
 
 // Eventos
@@ -74,9 +100,9 @@ void Game::DoEvents()
 			cannonBody->SetTransform(cannonBody->GetPosition(), currentAngle + rotationSpeed * frameTime);
 		}
 
-		// Update the problematic line in DoEvents method
 		if (evt.type == Event::MouseMoved)
 		{
+			// Obtener la posición del ratón y calcular el ángulo
 			Vector2f mousePos = wnd->mapPixelToCoords(Mouse::getPosition(*wnd));
 			Vector2f cannonPos = sf::Vector2f(cannonBody->GetPosition().x, cannonBody->GetPosition().y); // Use the helper function
 			float angle = atan2(mousePos.y - cannonPos.y, mousePos.x - cannonPos.x);
@@ -137,25 +163,15 @@ void Game::InitPhysics()
 	b2Body* groundBody = Box2DHelper::CreateRectangularStaticBody(phyWorld, 100, 10);
 	groundBody->SetTransform(b2Vec2(50.0f, 100.0f), 0.0f);
 
-	//// Crear 5 ragdolls en distintas posiciones
-	//for (int i = 0; i < 5; ++i)
-	//{
-	//	float x = 10.0f + i * 8.0f; // Separar los ragdolls horizontalmente
-	//	float y = 50.0f;
+	b2Body* leftWall = Box2DHelper::CreateRectangularStaticBody(phyWorld, 10, 100);
+	leftWall->SetTransform(b2Vec2(0.0f, 50.0f), 0.0f);
 
-	//	Ragdoll rag(phyWorld, b2Vec2(x, y));
-	//	ragdolls.push_back(rag);
-	//}
+	b2Body* rightWall = Box2DHelper::CreateRectangularStaticBody(phyWorld, 10, 100);
+	rightWall->SetTransform(b2Vec2(100.0f, 50.0f), 0.0f);
 
-	//// Empujar un poquito la primer ragdoll para que se caigan en dominó
-	//// cuando arranca el programa
-	//b2Fixture* r = ragdolls[0].GetHeadFixture();
-	//b2Vec2 impulse(150, 0);
-	//r->GetBody()->SetAwake(true);
-	//r->GetBody()->ApplyLinearImpulseToCenter(impulse, true);
+	b2Body* ceiling = Box2DHelper::CreateRectangularStaticBody(phyWorld, 100, 10);
+	ceiling->SetTransform(b2Vec2(50.0f, 0.0f), 0.0f);
 
-
-	////
 	// -------------------- CREAR EL CAÑÓN --------------------
 
 	// Definir el cuerpo del cañón
@@ -177,10 +193,13 @@ void Game::InitPhysics()
 	cannonFixture.friction = 0.3f;
 
 	cannonBody->CreateFixture(&cannonFixture);
+
+	// Obstáculos
+	obstacles.push_back(new StaticObstacle(phyWorld, 40, 60, 20, 2));
+	obstacles.push_back(new DynamicObstacle(phyWorld, 50, 50, 10, 10));
 }
 
 // Destructor de la clase
-
 Game::~Game(void)
 {
 }

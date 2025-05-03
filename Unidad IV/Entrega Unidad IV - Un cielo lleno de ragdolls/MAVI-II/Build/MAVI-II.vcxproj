@@ -21,9 +21,12 @@
   <ItemGroup>
     <ClInclude Include="..\Src\Avatar.h" />
     <ClInclude Include="..\Src\Box2DHelper.h" />
+    <ClInclude Include="..\Src\DynamicObstacle.h" />
     <ClInclude Include="..\Src\Game.h" />
+    <ClInclude Include="..\Src\Obstacle.h" />
     <ClInclude Include="..\Src\Ragdoll.h" />
     <ClInclude Include="..\Src\SFMLRenderer.h" />
+    <ClInclude Include="..\Src\StaticObstacle.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Src\Avatar.cpp" />
@@ -31,15 +34,18 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\Src\DynamicObstacle.cpp" />
     <ClCompile Include="..\Src\Game.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\Src\Obstacle.cpp" />
     <ClCompile Include="..\Src\Ragdoll.cpp" />
     <ClCompile Include="..\Src\SFMLRenderer.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\Src\StaticObstacle.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{96C674D7-9E95-4F51-966C-1A0545981942}</ProjectGuid>

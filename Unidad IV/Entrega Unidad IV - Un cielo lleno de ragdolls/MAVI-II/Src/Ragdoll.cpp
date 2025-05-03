@@ -9,6 +9,11 @@ void Ragdoll::ApplyImpulse(const b2Vec2& impulse)
     head->ApplyLinearImpulse(impulse, head->GetWorldCenter(), true);
 }
 
+/// <summary>
+/// Version de applyimpulse que depende de la distancia al mouse
+/// </summary>
+/// <param name="mousePosition"></param>
+/// <param name="cannonBody"></param>
 void Ragdoll::ApplyImpulseBasedOnMouse(const sf::Vector2i& mousePosition, b2Body* cannonBody)
 {
     b2Vec2 basePosition = cannonBody->GetPosition(); // posición de la base del cañón
@@ -19,9 +24,13 @@ void Ragdoll::ApplyImpulseBasedOnMouse(const sf::Vector2i& mousePosition, b2Body
 
     float dx = mouseWorldPos.x - basePosition.x;
     float dy = mouseWorldPos.y - basePosition.y;
-    float distance = sqrt(dx * dx + dy * dy);
+    float distance = sqrt(dx * dx + dy * dy); // Pitágoras
 
-    float forceMagnitude = (std::pow(distance, 2.5f) * 200.0f / 10000.0f);
+    // Aumentar la sensibilidad de la fuerza en función de la distancia
+    float forceMagnitude = (std::pow(distance, 3.0f) * 100.0f / 10000.0f);
+    // Exponente 3.0 para exagerar el efecto de la distancia al mouse porque no se nota mucho
+	// Divido por 10000 porque fui agregando 0s para ir atenuando el impulso
+    // porque sino al salir disparado con demasiado impulso se frenan en seco, como si chocaran con el aire mismo
 
     float angle = cannonBody->GetAngle();
     b2Vec2 direction(cos(angle), sin(angle));
@@ -36,9 +45,11 @@ void Ragdoll::ApplyImpulseBasedOnMouse(const sf::Vector2i& mousePosition, b2Body
 Ragdoll::Ragdoll(b2World* world, const b2Vec2& position)
     : world(world)
 {
-    float scale = 0.5f; // Aumento de tamaño para evitar problemas de física
+    float scale = 0.6f;
+    // Aumento de tamaño para evitar problemas. Experimental.
+    // Por algun motivo los ragdolls si son muy grandes no se disparan rápido.
 
-    // Creación de partes del cuerpo con escala corregida
+    // Creación de partes del cuerpo con escala
     head = CreateCircle(position + b2Vec2(10.0f * scale, 10.0f * scale), 2.2f * scale);
     body = CreateBox(position + b2Vec2(10.0f * scale, 20.0f * scale), 2.4f * scale, 10.0f * scale);
     leftArm = CreateBox(position + b2Vec2(7.0f * scale, 20.0f * scale), 1.0f * scale, 10.0f * scale);
@@ -94,7 +105,15 @@ b2Body* Ragdoll::CreateCircle(const b2Vec2& pos, float radius)
 
 void Ragdoll::CreateJoints()
 {
-    float scale = 0.5f; // Aumento de escala
+    float scale = 0.5f;
+
+    // Dimensiones reales de cada parte
+    float bodyWidth = 4.4f * scale;
+    float bodyHeight = 10.0f * scale;
+    float armWidth = 1.0f * scale;
+    float armHeight = 10.0f * scale;
+    float legWidth = 1.0f * scale;
+    float legHeight = 10.0f * scale;
 
     // Cuello
     {
@@ -108,48 +127,51 @@ void Ragdoll::CreateJoints()
 
     // Hombro izquierdo
     {
-        b2Vec2 anchor = leftArm->GetWorldCenter(); // Usar el centro del cuerpo
+        b2Vec2 anchor = body->GetWorldCenter() + b2Vec2(-bodyWidth / 2.0f, -bodyHeight); // esquina superior izquierda del cuerpo
+        anchor.y += 1.0f * scale; // pequeño ajuste hacia abajo (opcional)
         b2RevoluteJointDef jointDef;
         jointDef.Initialize(body, leftArm, anchor);
         jointDef.enableLimit = true;
-        jointDef.lowerAngle = -1.0f;
-        jointDef.upperAngle = 1.0f;
+        jointDef.lowerAngle = -2.0f;
+        jointDef.upperAngle = 2.0f;
         joints.push_back(world->CreateJoint(&jointDef));
     }
 
     // Hombro derecho
     {
-        b2Vec2 anchor = rightArm->GetWorldCenter(); // Usar el centro del cuerpo
+        b2Vec2 anchor = body->GetWorldCenter() + b2Vec2(bodyWidth / 2.0f, -bodyHeight); // esquina superior derecha del cuerpo
+        anchor.y += 1.0f * scale; // pequeño ajuste hacia abajo
         b2RevoluteJointDef jointDef;
         jointDef.Initialize(body, rightArm, anchor);
         jointDef.enableLimit = true;
-        jointDef.lowerAngle = -1.0f;
-        jointDef.upperAngle = 1.0f;
+        jointDef.lowerAngle = -2.0f;
+        jointDef.upperAngle = 2.0f;
         joints.push_back(world->CreateJoint(&jointDef));
     }
 
     // Pierna izquierda
     {
-        b2Vec2 anchor = leftLeg->GetWorldCenter(); // Usar el centro del cuerpo
+        b2Vec2 anchor = body->GetWorldCenter() + b2Vec2(-bodyWidth / 4.0f, bodyHeight / 2.0f); // cadera izquierda
         b2RevoluteJointDef jointDef;
         jointDef.Initialize(body, leftLeg, anchor);
         jointDef.enableLimit = true;
-        jointDef.lowerAngle = -1.0f;
+        jointDef.lowerAngle = -0.5f;
         jointDef.upperAngle = 1.0f;
         joints.push_back(world->CreateJoint(&jointDef));
     }
 
     // Pierna derecha
     {
-        b2Vec2 anchor = rightLeg->GetWorldCenter(); // Usar el centro del cuerpo
+        b2Vec2 anchor = body->GetWorldCenter() + b2Vec2(bodyWidth / 4.0f, bodyHeight / 2.0f); // cadera derecha
         b2RevoluteJointDef jointDef;
         jointDef.Initialize(body, rightLeg, anchor);
         jointDef.enableLimit = true;
-        jointDef.lowerAngle = -1.0f;
+        jointDef.lowerAngle = -0.5f;
         jointDef.upperAngle = 1.0f;
         joints.push_back(world->CreateJoint(&jointDef));
     }
 }
+
 
 void Ragdoll::Draw(sf::RenderWindow& window)
 {
