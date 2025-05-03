@@ -31,7 +31,6 @@ private:
     std::vector<b2Joint*> joints;
 
     // Métodos auxiliares
-    float GetBodyHeight(b2Body* body);
     b2Body* CreateBox(const b2Vec2& pos, float width, float height);
     b2Body* CreateCircle(const b2Vec2& pos, float radius);
     void CreateJoints();

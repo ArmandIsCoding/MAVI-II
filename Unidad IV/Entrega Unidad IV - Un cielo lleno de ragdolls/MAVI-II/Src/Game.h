@@ -30,23 +30,19 @@ private:
 	float frameTime;
 	int fps;
 
-	// Joints, en un vector porque necesito muchos.
+	// ragdolls, en un vector porque necesito muchas.
 	std::vector<Ragdoll> ragdolls;
 
 	b2Body* groundBody;
-
-	// Cuerpos de box2d
 	b2Body* cannonBody;
 
 public:
 
-	// Constructores, destructores e inicializadores
 	Game(int ancho, int alto,std::string titulo);
 	void CheckCollitions();
 	~Game(void);
 	void InitPhysics();
 
-	// Main game loop
 	void Loop();
 	void DrawGame();
 	void UpdatePhysics();

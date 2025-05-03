@@ -104,7 +104,7 @@ void Game::DoEvents()
 		{
 			// Obtener la posición del ratón y calcular el ángulo
 			Vector2f mousePos = wnd->mapPixelToCoords(Mouse::getPosition(*wnd));
-			Vector2f cannonPos = sf::Vector2f(cannonBody->GetPosition().x, cannonBody->GetPosition().y); // Use the helper function
+			Vector2f cannonPos = sf::Vector2f(cannonBody->GetPosition().x, cannonBody->GetPosition().y);
 			float angle = atan2(mousePos.y - cannonPos.y, mousePos.x - cannonPos.x);
 			cannonBody->SetTransform(cannonBody->GetPosition(), angle);
 		}
@@ -177,7 +177,7 @@ void Game::InitPhysics()
 	// Definir el cuerpo del cañón
 	b2BodyDef cannonDef;
 	cannonDef.type = b2_staticBody;  // No se mueve (pero si se puede rotar)
-	cannonDef.position.Set(5.0f, 50.0f);  // Fijo a la izquierda
+	cannonDef.position.Set(10.0f, 90.0f);  // Fijo a la izquierda
 	cannonDef.angle = 0.0f;  // Inicialmente recto
 
 	// Crear el cuerpo en el mundophy
@@ -195,8 +195,11 @@ void Game::InitPhysics()
 	cannonBody->CreateFixture(&cannonFixture);
 
 	// Obstáculos
-	obstacles.push_back(new StaticObstacle(phyWorld, 40, 60, 20, 2));
-	obstacles.push_back(new DynamicObstacle(phyWorld, 50, 50, 10, 10));
+	obstacles.push_back(new StaticObstacle(phyWorld, 50, 70, 20, 2));
+	obstacles.push_back(new DynamicObstacle(phyWorld, 80, 50, 10, 10));
+	obstacles.push_back(new DynamicObstacle(phyWorld, 60, 50, 10, 10));
+	obstacles.push_back(new DynamicObstacle(phyWorld, 40, 50, 10, 10));
+	obstacles.push_back(new DynamicObstacle(phyWorld, 20, 50, 10, 10));
 }
 
 // Destructor de la clase

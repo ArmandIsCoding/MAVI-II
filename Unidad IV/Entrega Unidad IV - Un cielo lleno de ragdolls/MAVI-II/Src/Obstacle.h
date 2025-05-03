@@ -4,6 +4,7 @@
 
 class Obstacle {
 public:
+    // Virtual y =0 porque Obstacle es abstracta
     virtual ~Obstacle() = default;
     virtual void Update() = 0;
     virtual void Draw(sf::RenderWindow& window) = 0;
