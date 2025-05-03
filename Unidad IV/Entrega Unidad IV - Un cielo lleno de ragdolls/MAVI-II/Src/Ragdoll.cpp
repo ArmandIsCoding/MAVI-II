@@ -127,7 +127,7 @@ void Ragdoll::CreateJoints()
 
     // Hombro izquierdo
     {
-        b2Vec2 anchor = body->GetWorldCenter() + b2Vec2(-bodyWidth / 2.0f, -bodyHeight); // esquina superior izquierda del cuerpo
+        b2Vec2 anchor = body->GetWorldCenter() + b2Vec2(-bodyWidth / 2.0f, -bodyHeight); // esquina superior izquierda
         anchor.y += 1.0f * scale; // pequeño ajuste hacia abajo (opcional)
         b2RevoluteJointDef jointDef;
         jointDef.Initialize(body, leftArm, anchor);
@@ -139,7 +139,7 @@ void Ragdoll::CreateJoints()
 
     // Hombro derecho
     {
-        b2Vec2 anchor = body->GetWorldCenter() + b2Vec2(bodyWidth / 2.0f, -bodyHeight); // esquina superior derecha del cuerpo
+        b2Vec2 anchor = body->GetWorldCenter() + b2Vec2(bodyWidth / 2.0f, -bodyHeight); // esquina superior derecha
         anchor.y += 1.0f * scale; // pequeño ajuste hacia abajo
         b2RevoluteJointDef jointDef;
         jointDef.Initialize(body, rightArm, anchor);
